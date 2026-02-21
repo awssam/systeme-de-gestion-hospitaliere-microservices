@@ -1,0 +1,21 @@
+# Compiled artifacts
+**/target/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.settings/
+.classpath
+.project
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs and temp files
+*.log
+*.pid
+*.txt
+!README.md
+!rapport.md

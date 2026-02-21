@@ -1,0 +1,370 @@
+openapi: 3.0.3
+info:
+  title: API du Système de Gestion Hospitalière
+  description: Collection d'API pour les microservices du système de gestion hospitalière via la Passerelle (Gateway).
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080/api
+    description: API Gateway (Passerelle)
+tags:
+  - name: Patients
+    description: Gestion des patients
+  - name: Rendez-vous
+    description: Gestion des rendez-vous
+  - name: Dossiers Médicaux
+    description: Gestion des dossiers médicaux
+  - name: Configurations
+    description: Opérations de configuration du système
+paths:
+  /patients:
+    get:
+      summary: Lister tous les patients
+      tags:
+        - Patients
+      responses:
+        "200":
+          description: Une liste de patients
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Patient"
+    post:
+      summary: Créer un nouveau patient
+      tags:
+        - Patients
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatientInput"
+      responses:
+        "201":
+          description: Patient créé avec succès
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Patient"
+  /patients/{id}:
+    get:
+      summary: Récupérer un patient par ID
+      tags:
+        - Patients
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID du patient
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Objet patient trouvé
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Patient"
+        "500":
+          description: Erreur Interne du Serveur
+        "404":
+          description: Patient non trouvé
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /appointments:
+    get:
+      summary: Lister tous les rendez-vous
+      tags:
+        - Rendez-vous
+      responses:
+        "200":
+          description: Une liste de rendez-vous
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Appointment"
+    post:
+      summary: Créer un nouveau rendez-vous
+      tags:
+        - Rendez-vous
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AppointmentInput"
+      responses:
+        "201":
+          description: Rendez-vous créé avec succès
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Appointment"
+        "404":
+          description: Patient non trouvé
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /appointments/patient/{patientId}:
+    get:
+      summary: Récupérer les rendez-vous d'un patient par son ID
+      tags:
+        - Rendez-vous
+      parameters:
+        - name: patientId
+          in: path
+          required: true
+          description: ID du patient pour lequel récupérer les RDV
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Liste des rendez-vous du patient
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Appointment"
+  /medical-records:
+    get:
+      summary: Lister tous les dossiers médicaux
+      tags:
+        - Dossiers Médicaux
+      responses:
+        "200":
+          description: Une liste de dossiers médicaux
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MedicalRecord"
+    post:
+      summary: Créer un nouveau dossier médical
+      tags:
+        - Dossiers Médicaux
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MedicalRecordInput"
+      responses:
+        "201":
+          description: Dossier médical créé avec succès
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MedicalRecord"
+        "404":
+          description: Patient non trouvé
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /medical-records/patient/{patientId}:
+    get:
+      summary: Récupérer les dossiers médicaux d'un patient par son ID
+      tags:
+        - Dossiers Médicaux
+      parameters:
+        - name: patientId
+          in: path
+          required: true
+          description: ID du patient pour lequel récupérer les dossiers
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Liste des dossiers médicaux du patient
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MedicalRecord"
+  /patient-service/default:
+    get:
+      summary: Récupérer la configuration du Patient Service
+      servers:
+        - url: http://localhost:8888
+          description: Config Server
+      tags:
+        - Configurations
+      responses:
+        "200":
+          description: Configuration retournée avec succès
+  /appointment-service/default:
+    get:
+      summary: Récupérer la configuration de l'Appointment Service
+      servers:
+        - url: http://localhost:8888
+          description: Config Server
+      tags:
+        - Configurations
+      responses:
+        "200":
+          description: Configuration retournée avec succès
+  /medical-record-service/default:
+    get:
+      summary: Récupérer la configuration du Medical Record Service
+      servers:
+        - url: http://localhost:8888
+          description: Config Server
+      tags:
+        - Configurations
+      responses:
+        "200":
+          description: Configuration retournée avec succès
+  /api-gateway/default:
+    get:
+      summary: Récupérer la configuration de l'API Gateway
+      servers:
+        - url: http://localhost:8888
+          description: Config Server
+      tags:
+        - Configurations
+      responses:
+        "200":
+          description: Configuration retournée avec succès
+components:
+  schemas:
+    Patient:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        nom:
+          type: string
+          example: "Bennani"
+        prenom:
+          type: string
+          example: "Youssef"
+        dateNaissance:
+          type: string
+          format: date
+          example: "1990-05-15"
+        contact:
+          type: string
+          example: "0661234567"
+    PatientInput:
+      type: object
+      required:
+        - nom
+        - prenom
+        - dateNaissance
+        - contact
+      properties:
+        nom:
+          type: string
+          example: "Bennani"
+        prenom:
+          type: string
+          example: "Youssef"
+        dateNaissance:
+          type: string
+          format: date
+          example: "1990-05-15"
+        contact:
+          type: string
+          example: "0661234567"
+      examples:
+        Patient1:
+          summary: Exemple Patient 1
+          value:
+            nom: "Bennani"
+            prenom: "Youssef"
+            dateNaissance: "1990-05-15"
+            contact: "0661234567"
+        Patient2:
+          summary: Exemple Patient 2
+          value:
+            nom: "Alaoui"
+            prenom: "Fatima"
+            dateNaissance: "1985-10-20"
+            contact: "0669876543"
+        Patient3:
+          summary: Exemple Patient 3
+          value:
+            nom: "Chraibi"
+            prenom: "Amine"
+            dateNaissance: "2000-02-10"
+            contact: "0661122334"
+    Appointment:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        patientId:
+          type: integer
+          example: 1
+        date:
+          type: string
+          format: date-time
+          example: "2026-03-15T10:30:00"
+    AppointmentInput:
+      type: object
+      required:
+        - patientId
+        - date
+      properties:
+        patientId:
+          type: integer
+          example: 1
+        date:
+          type: string
+          format: date-time
+          example: "2026-03-15T10:30:00"
+    MedicalRecord:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        patientId:
+          type: integer
+          example: 1
+        diagnostics:
+          type: string
+          example: "Hypertension artérielle - Traitement prescrit"
+        createdAt:
+          type: string
+          format: date-time
+          example: "2026-02-21T00:00:00Z"
+    MedicalRecordInput:
+      type: object
+      required:
+        - patientId
+        - diagnostics
+      properties:
+        patientId:
+          type: integer
+          example: 1
+        diagnostics:
+          type: string
+          example: "Hypertension artérielle - Traitement prescrit"
+    ErrorResponse:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          example: "2026-02-21T10:03:22.523Z"
+        status:
+          type: integer
+          example: 404
+        error:
+          type: string
+          example: "Not Found"
+        message:
+          type: string
+          example: "Patient non trouvé avec l'id : 999"

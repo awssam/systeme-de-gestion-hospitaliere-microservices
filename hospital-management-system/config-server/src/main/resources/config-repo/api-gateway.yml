@@ -1,0 +1,36 @@
+server:
+  port: 8080
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+
+logging:
+  level:
+    org.springframework.cloud.gateway: TRACE
+    org.springframework.web: TRACE
+
+spring:
+  cloud:
+    gateway:
+      mvc:
+        routes:
+          - id: patient-service
+            uri: http://localhost:8081
+            predicates:
+              - Path=/api/patients/**
+          - id: appointment-service
+            uri: http://localhost:8082
+            predicates:
+              - Path=/api/appointments/**
+          - id: medical-record-service
+            uri: http://localhost:8083
+            predicates:
+              - Path=/api/medical-records/**
+          - id: config-server
+            uri: http://localhost:8888
+            predicates:
+              - Path=/api/config/**
+            filters:
+              - StripPrefix=1
